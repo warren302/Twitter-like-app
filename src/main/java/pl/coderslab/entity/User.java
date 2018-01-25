@@ -1,10 +1,17 @@
 package pl.coderslab.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -30,7 +37,15 @@ public class User {
 	@Email
 	@Column(nullable = false, unique = true)
 	private String email;
+	
+	@OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+	@JoinColumn(name="user_id")
+	private List<Tweet> tweets = new ArrayList<Tweet>();
 
+	
+	public User() {}
+	
+	
 	public Long getId() {
 		return id;
 	}
@@ -70,6 +85,15 @@ public class User {
 	public void setEmail(String email) {
 		this.email = email;
 	}
+
+	public List<Tweet> getTweets() {
+		return tweets;
+	}
+
+	public void setTweets(List<Tweet> tweets) {
+		this.tweets = tweets;
+	}
+
 
 	@Override
 	public String toString() {

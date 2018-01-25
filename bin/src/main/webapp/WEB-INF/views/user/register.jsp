@@ -15,16 +15,16 @@
 <body>
   <f:form action="register" method="post" modelAttribute="user">
     <div>
-      Username: <f:input path="username"/><f:errors path="username" cssClass="error"/>
+      Nazwa użytkownika: <f:input path="username"/><f:errors path="username" cssClass="error"/>
     </div>
     <div>
-      Password: <f:password path="password"/><f:errors path="password" cssClass="error"/>
+      Hasło: <f:password path="password"/><f:errors path="password" cssClass="error"/>
     </div>
     <div>
       E-mail: <f:input type="email" path="email" /><f:errors path="email" cssClass="error"/>
     </div>
     <div>
-      <input type="submit" value="Accept"/>
+      <input type="submit" value="Zarejestruj się"/>
     </div>
   </f:form>
 </body>

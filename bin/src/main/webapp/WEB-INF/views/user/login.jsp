@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>Logging in page Twitter</title>
+<title>Strona logowania aplikacji Twitter</title>
 </head>
 <body>
   <form action="login" method="post">
@@ -10,13 +10,13 @@
       Login: <input type="text" name="username"/>
     </div>
     <div>
-      Password: <input type="password" name="password"/>
+      Hasło: <input type="password" name="password"/>
     </div>
     <div>
-      <input type="submit" value="Log in"/>
+      <input type="submit" value="Zaloguj się"/>
     </div>
     <div>
-      Don't you have an account yet? <a href="register"><strong>Register</strong></a>
+      Nie masz jeszcze konta? <a href="register">Zarejestruj się</a>
     </div>  
   </form>
 </body>
