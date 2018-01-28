@@ -15,6 +15,7 @@ import javax.persistence.OneToMany;
 
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.mindrot.jbcrypt.BCrypt;
 
 @Entity
 public class User {
@@ -43,9 +44,16 @@ public class User {
 	private List<Tweet> tweets = new ArrayList<Tweet>();
 
 	
+
+	
 	public User() {}
 	
 	
+	
+	
+
+
+
 	public Long getId() {
 		return id;
 	}
@@ -67,7 +75,8 @@ public class User {
 	}
 
 	public void setPassword(String password) {
-		this.password = password;
+		String hashed = BCrypt.hashpw(password, BCrypt.gensalt());
+		this.password = hashed;
 	}
 
 	public boolean isEnabled() {

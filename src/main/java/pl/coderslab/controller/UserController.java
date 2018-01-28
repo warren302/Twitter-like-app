@@ -1,24 +1,30 @@
 package pl.coderslab.controller;
 
-import java.util.Collections;
+import java.time.LocalDateTime;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttribute;
 
+import pl.coderslab.entity.Message;
 import pl.coderslab.entity.Tweet;
 import pl.coderslab.entity.User;
+import pl.coderslab.repository.CommentRepository;
+import pl.coderslab.repository.MessageRepository;
 import pl.coderslab.repository.TweetRepository;
 import pl.coderslab.repository.UserRepository;
 
@@ -31,25 +37,31 @@ public class UserController {
 
 	@Autowired
 	private TweetRepository tweetRepository;
+	
+	
+	@Autowired
+	private CommentRepository commentRepository;
+	
+	@Autowired
+	private MessageRepository messageRepository;
 
+	
 	@GetMapping(path = "/login")
-	public String showLoginForm() {
+	public String showLoginForm(Model model) {
+		model.addAttribute("user", new User());
 		return "user/login";
 	}
 
 	@PostMapping(path = "/login")
-	public String processLoginRequest(@RequestParam("username") String username,
-			@RequestParam("password") String password, Model model, HttpSession session) {
-
-		User user = userRepository.findOneByUsernameAndPassword(username, password);
-
-		if (user != null) {
-
-			session.setAttribute("user", user);
-			model.addAttribute("username", username);
+	public String processLoginRequest(@Valid User user, BindingResult result, HttpSession session) {
+		
+		User newUser = userRepository.findOneByUsername(user.getUsername());
+		if (user != null && BCrypt.checkpw(user.getPassword(), newUser.getPassword())) {
+			session.setAttribute("user", newUser);
 			return "redirect:/tweet/list";
 		} else {
-
+			result.reject("login.error", "invalid credentials");
+			result.getModel().put("password", "");
 			return "user/login";
 		}
 	}
@@ -64,7 +76,7 @@ public class UserController {
 	public String processRegistartionRequest(@Valid User user, BindingResult bresult) {
 
 		if (bresult.hasErrors()) {
-
+	
 			return "user/register";
 
 		} else {
@@ -87,7 +99,7 @@ public class UserController {
 	}
 
 	@GetMapping(path = "/logout")
-	public String processLogOutRequest(HttpSession session, Model model) {
+	public String processLogOutRequest(HttpSession session) {
 		User user = (User) session.getAttribute("user");
 		if (user != null) {
 
@@ -112,18 +124,22 @@ public class UserController {
 		}
 	}
 
+	
+
+	
+	
 	@GetMapping(path = "/details/{id}")
 	public String showUser(@PathVariable("id") long id, HttpSession session, Model model) {
 		User user = (User) session.getAttribute("user");
 		if (user != null) {
 			User showUser = userRepository.findOne(id);
 			if (showUser != null) {
-				if (showUser.getTweets() != null) {
-					Collections.reverse(showUser.getTweets());
-				}
+				showUser.setTweets((List<Tweet>) tweetRepository.findByUserIdDesc(showUser.getId()));
 				model.addAttribute("showUser", showUser);
 				long twCounter = tweetRepository.countByUser(showUser);
 				model.addAttribute("twCounter", twCounter);
+				long comCounter = commentRepository.countByUserId(showUser.getId());
+				model.addAttribute("comCounter",comCounter);
 				return "user/userdetails";
 			} else {
 				return "user/usernotfound";
@@ -133,4 +149,37 @@ public class UserController {
 		}
 	}
 
+	@GetMapping(path = "/mailbox")
+	public String showMailbox(HttpSession session, Model model) {
+		User user = (User) session.getAttribute("user");
+		if (user != null) {
+			List<User> receivers = userRepository.findAll();
+			receivers.removeIf(o -> o.getId() == user.getId());
+			model.addAttribute("receivers", receivers);
+			List<Message> messages = (List<Message>) messageRepository.findAllBySenderOrAddressee(user, user);
+			model.addAttribute("messages", messages);
+			model.addAttribute("message", new Message());
+			return "user/mailbox";
+		} else {
+			return "index";
+		}
+	}
+	
+	
+	@PostMapping(path = "/mailbox")
+	public String showMailbox(HttpSession session, @ModelAttribute Message message) {
+		User user = (User) session.getAttribute("user");
+		if (user == null) {
+			return "index";
+		} else {
+			if (message != null && !"".equals(message.getText())) {
+				message.setCreated(LocalDateTime.now());
+				message.setSender(user);
+				message.setRead(false);
+				messageRepository.save(message);
+			}
+			return "redirect:mailbox";
+		}
+	}
+	
 }

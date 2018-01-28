@@ -9,10 +9,11 @@
 <body>
 	<div>
 		<span>You are logged in as: ${user.username}</span> <a
+			href="<c:url value="/user/mailbox" />">MessageBox</a> <a
 			href="<c:url value="/user/logout" />">Log out</a>
 	</div>
 	<div class="container">
-		<h1>User Detail</h1>
+		<h3>User Details</h3>
 		<br />
 
 		<div class="row">
@@ -31,9 +32,28 @@
 			<label class="col-sm-2">No of tweets</label>
 			<div class="col-sm-10">${twCounter}</div>
 		</div>
-		
-
+		<div class="row">
+			<label class="col-sm-2">No of comments</label>
+			<div class="col-sm-10">${comCounter}</div>
+		</div>
 	</div>
+	<br>
+	<c:choose>
+		<c:when test="${user.id ne showUser.id}">
+			<c:url value="/message/newmessage/${showUser.id }" var="linkMessage" />
+			<f:form action="${linkMessage}" method="get" modelAttribute="message">
+				<input type="submit" value="send message to ${showUser.username }" />
+			</f:form>
+		</c:when>
+	</c:choose>
+
+
+	<%-- alternatively
+		<f:form action="${pageContext.request.contextPath}/message/newmessage/${showUser.id}"
+			method="get">
+			<input type="submit" value="send message to ${showUser.username }" />
+		</f:form>
+ --%>
 
 	<div>
 		<table>
@@ -55,7 +75,7 @@
 		</table>
 	</div>
 	<div>
-		<a href="<c:url value="/tweet/list" />" >Back to Tweets' list </a>
+		<a href="<c:url value="/tweet/list" />">Back to tweets' list </a>
 	</div>
 </body>
 </html>
