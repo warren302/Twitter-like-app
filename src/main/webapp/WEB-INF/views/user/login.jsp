@@ -4,16 +4,18 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>Logging in page Twitter</title>
+<title>Logging in Twitter</title>
 </head>
 <body>
-  <f:form action="login" method="post" modelAttribute="user">
+  <f:form action="login" method="post" modelAttribute="loginForm">
   	
     <div>
-      Login: <f:input type="text" path="username"/><f:errors path="username" cssClass="error" element="div"/>
+      Login: <f:input type="text" path="username"/>
+      <f:errors path="username" cssClass="error" element="div"/>
     </div>
     <div>
-      Password: <f:input type="password" path="password"/><f:errors path="password" cssClass="error" element="div"/>
+      Password: <f:input type="password" path="password"/>
+      <f:errors path="password" cssClass="error" element="div"/>
     </div>
  	 <f:errors path="*" element="div"/>
     <div>

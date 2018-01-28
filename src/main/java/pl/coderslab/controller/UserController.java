@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.SessionAttribute;
 import pl.coderslab.entity.Message;
 import pl.coderslab.entity.Tweet;
 import pl.coderslab.entity.User;
+import pl.coderslab.form.LoginForm;
 import pl.coderslab.repository.CommentRepository;
 import pl.coderslab.repository.MessageRepository;
 import pl.coderslab.repository.TweetRepository;
@@ -48,16 +49,16 @@ public class UserController {
 	
 	@GetMapping(path = "/login")
 	public String showLoginForm(Model model) {
-		model.addAttribute("user", new User());
+		model.addAttribute("loginForm", new LoginForm());
 		return "user/login";
 	}
 
 	@PostMapping(path = "/login")
-	public String processLoginRequest(@Valid User user, BindingResult result, HttpSession session) {
+	public String processLoginRequest(@Valid LoginForm loginForm, BindingResult result, HttpSession session) {
 		
-		User newUser = userRepository.findOneByUsername(user.getUsername());
-		if (user != null && BCrypt.checkpw(user.getPassword(), newUser.getPassword())) {
-			session.setAttribute("user", newUser);
+		User user = userRepository.findOneByUsername(loginForm.getUsername());
+		if (user != null && BCrypt.checkpw(loginForm.getPassword(), user.getPassword())) {
+			session.setAttribute("user", user);
 			return "redirect:/tweet/list";
 		} else {
 			result.reject("login.error", "invalid credentials");
